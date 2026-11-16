@@ -1,17 +1,12 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
-#include "network.h"
+#include "mqtt_manager.h"
 #include "secrets.h"
 
 static WiFiClient espClient;
 static PubSubClient client(espClient);
 static FloorCommandCallback onCommandReceived = nullptr;
-
-static const char* MQTT_SERVER = BROKER_LINK;
-static const int MQTT_PORT = BROKER_PORT;
-static const char* TOPIC_COMMAND = TOPIC_COMMAND;
-static const char* TOPIC_STATUS = TOPIC_STATUS;
 
 static void internalMqttCallback(char* topic, byte* payload, unsigned int length) {
   String message = "";
@@ -20,7 +15,7 @@ static void internalMqttCallback(char* topic, byte* payload, unsigned int length
   }
 
   int targetFloor = message.toInt();
-  
+
   if (onCommandReceived != nullptr) {
     onCommandReceived(targetFloor);
   }
@@ -45,7 +40,7 @@ static void reconnectMQTT() {
 
     if (client.connect(clientId.c_str())) {
       Serial.println("Connected!");
-      client.subscribe(TOPIC_COMMAND);
+      client.subscribe(SECRET_TOPIC_COMMAND);
     } else {
       Serial.print("Failed, rc=");
       Serial.print(client.state());
@@ -55,25 +50,25 @@ static void reconnectMQTT() {
   }
 }
 
-void setupMqtt(const char* ssid, const char* password, FloorCommandCallback callback){
+void setupMqtt(const char* ssid, const char* password, FloorCommandCallback callback) {
   onCommandReceived = callback;
-  connectWifi(ssid, password);
+  connectWiFi(ssid, password);
 
-  client.setServer(MQTT_SERVER, MQTT_PORT);
+  client.setServer(SECRET_BROKER_LINK, SECRET_BROKER_PORT);
   client.setCallback(internalMqttCallback);
 }
 
 void handleMqtt() {
-  if (!client.connected()){
-    reconnectMqtt();
+  if (!client.connected()) {
+    reconnectMQTT();
   }
   client.loop();
 }
 
-void publishCurrentFloor(int floor){
-  if (client.connected()){
+void publishCurrentFloor(int floor) {
+  if (client.connected()) {
     String payload = String(floor);
-    client.publish(TOPIC_STATUS, payload.c_str(), true);
+    client.publish(SECRET_TOPIC_STATUS, payload.c_str(), true);
     Serial.println("Published current floor: " + payload);
   }
 }

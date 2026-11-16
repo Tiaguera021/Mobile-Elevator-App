@@ -1,19 +1,16 @@
 package com.example.elevatordisplay;
 
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.view.View;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, Network.ElevatorEventListener{
     private TextView cardDisplay;
     private Button btn1, btn2, btn3;
+    private Network network;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,25 +25,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn1.setOnClickListener(this);
         btn2.setOnClickListener(this);
         btn3.setOnClickListener(this);
+
+        network = new Network(this);
+        network.connect();
     }
 
     @Override
     public void onClick(View v){
         int id = v.getId();
-        String selectedValue = "";
 
         if (id == R.id.btn1){
-            selectedValue = "1";
+            network.requestFloor("1");
         } else if (id == R.id.btn2){
-            selectedValue = "2";
+            network.requestFloor("2");
         } else if (id == R.id.btn3){
-            selectedValue = "3";
+            network.requestFloor("3");
         }
 
-        if(!selectedValue.isEmpty()){
-            cardDisplay.setText(selectedValue);
+    }
 
-            //Here we gonna do the communication with ESP32 later
+    @Override
+    public void onFloorReceived(String floor){
+        runOnUiThread(() -> cardDisplay.setText(floor));
+    }
+
+    @Override
+    public void onConnectionStatusChanged(boolean isConnected){
+        runOnUiThread(() -> {
+            String message = isConnected ? "Connected to the elevator!" : "Fail in the MQTT connection!";
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        if (network != null){
+            network.disconnect();
         }
     }
 }

@@ -20,7 +20,7 @@ void setupMotor(int pin1, int pin2){
 
 void stopMotor(){
   digitalWrite(motorPin1, LOW);
-  digitalWrite(motorPin2, LOW)
+  digitalWrite(motorPin2, LOW);
 }
 
 int initMotor(int currentLevel, int desiredLevel){
@@ -29,7 +29,7 @@ int initMotor(int currentLevel, int desiredLevel){
 
   if (destiny < 1 || destiny > 3){
     Serial.println("Floor doesn't exist.");
-    return;
+    return 0;
   }
 
   if (position < destiny){
@@ -37,7 +37,7 @@ int initMotor(int currentLevel, int desiredLevel){
     digitalWrite(motorPin1, HIGH);
     digitalWrite(motorPin2, LOW);
     delay(DIRECTION_TIME);
-    stopMotor(motorPin1, motorPin2);
+    stopMotor();
     Serial.println("You have reached your floor!");
     return destiny;
   } else if (position > destiny) {
@@ -45,7 +45,7 @@ int initMotor(int currentLevel, int desiredLevel){
     digitalWrite(motorPin1, LOW);
     digitalWrite(motorPin2, HIGH);
     delay(DIRECTION_TIME);
-    stopMotor(motorPin1, motorPin2);
+    stopMotor();
     Serial.println("You have reached your floor!");
     return destiny;
   } else {

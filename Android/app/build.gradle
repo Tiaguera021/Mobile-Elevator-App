@@ -2,10 +2,24 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
+
 android {
     namespace 'com.example.elevatordisplay'
     compileSdk 36
 
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/INDEX.LIST', 'META-INF/io.netty.versions.properties']
+        }
+    }
+    buildFeatures {
+        buildConfig true
+    }
     defaultConfig {
         applicationId "com.example.elevatordisplay"
         minSdk 28
@@ -14,6 +28,10 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "MQTT_BROKER_HOST", localProperties.getProperty("MQTT_BROKER_HOST", '"broker.hivemq.com"')
+        buildConfigField "String", "MQTT_TOPIC_COMMAND", localProperties.getProperty("MQTT_TOPIC_COMMAND", '""')
+        buildConfigField "String", "MQTT_TOPIC_STATUS", localProperties.getProperty("MQTT_TOPIC_STATUS", '""')
+        buildConfigField "int", "MQTT_PORT", localProperties.getProperty("MQTT_PORT", '"');
     }
 
     buildTypes {
@@ -37,4 +55,5 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+    implementation 'com.hivemq:hivemq-mqtt-client:1.3.3'
 }

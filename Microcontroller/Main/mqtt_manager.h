@@ -1,7 +1,7 @@
-#ifndef NETWORK_H
-#define NETWORK_H
+#ifndef MQTT_MANAGER_H
+#define MQTT_MANAGER_H 
 
-// Define a new type of function wich will be called as a new floor is solicitated
+// Define a new type of function wich will be called when a new floor is solicitated
 typedef void (*FloorCommandCallback) (int targetFloor);
 
 // Setup the connection
@@ -11,6 +11,6 @@ void setupMqtt(const char* ssid, const char* password, FloorCommandCallback call
 void handleMqtt();
 
 // Publish the new floor, so it can be updated on the phone too
-void publichCurrentFloor(int floor);
+void publishCurrentFloor(int floor);
 
 #endif

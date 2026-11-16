@@ -1,10 +1,8 @@
 #include "motor.h"
-#include "network.h"
+#include "mqtt_manager.h"
 #include "secrets.h"
 
-const char* WIFI_SSID = WIFI_SSID;
-const char* WIFI_PASS = WIFI_PASS;
-
+// You can actually use any of the GPIO available on your ESP32, these are used just as an example in the code (and because i'm using it haha)
 const int MOTOR_PIN_1 = 25;
 const int MOTOR_PIN_2 = 26;
 
@@ -21,7 +19,7 @@ void setup() {
   Serial.begin(115200);
   
   setupMotor(MOTOR_PIN_1, MOTOR_PIN_2);
-  setupMqtt(WIFI_SSID, WIFI_PASS, onFloorRequested);
+  setupMqtt(SECRET_WIFI_SSID, SECRET_WIFI_PASS, onFloorRequested);
 
   handleMqtt();
   publishCurrentFloor(currentFloor);
